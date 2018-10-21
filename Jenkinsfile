@@ -5,7 +5,7 @@ pipeline {
             
         stage('Build'){
             steps{
-                bat 'mvn clean'
+                bat 'mvn clean package'
             }
         
             post {
@@ -13,6 +13,12 @@ pipeline {
                     echo 'Now Archiving...'
                     archiveArtifacts artifacts: '**/target/*.war'
                 }
+            }
+        }
+
+        stage('Deploy to Staging'){
+            steps {
+                build job: "deploy-to-staging"
             }
         }
     }    
