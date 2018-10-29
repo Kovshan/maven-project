@@ -1,44 +1,45 @@
 pipeline {
-    agent any
-    
-    stages {
-            
+    agent any 
+
+    parameters { 
+        string(name: 'tomcat_dev', defaultValue: '54.93.249.235', description: 'Staging Server')
+        string(name: 'tomcat_prod', defaultValue: '18.195.2.221', description: 'Production Server')
+    }
+
+    triggers {
+        pollSCM('* * * * *')
+    }
+
+    stages{
+
         stage('Build'){
             steps {
                 bat 'mvn clean package'
             }
-        
             post {
                 success {
                     echo 'Now Archiving...'
                     archiveArtifacts artifacts: '**/target/*.war'
                 }
             }
+
         }
 
-        stage('Deploy to Staging'){
-            steps {
-                build job: 'pipeline-as-code/deploy-to-staging-as-code'
-            }
-        }
-
-        stage('Deploy to production'){
-            steps {
-                timeout(time:5, unit:'DAYS'){
-                    input message: 'Approve PRODUCTION deployment?'
+        stage ('Deployments'){
+            parallel{
+                stage ('Deploy to Staging'){
+                    steps {
+                        bat 'pscp -scp -i F:/Education/Performance/Amazon/ubuntuaws64bit_2.pem **/target/*.war ubuntu@${params.tomcat_dev}:/var/lib/tomcat8/webapps'
+                    }
                 }
-
-                build job: 'pipeline-as-code/deploy-to-prod-as-code'
-            }
-            post {
-                success {
-                    echo 'Code deployed to Production.'
-                }
-
-                failure {
-                    echo ' Deployment failed.'
+                
+                stage ('Deploy to Production'){
+                    steps {
+                        bat 'pscp -scp -i F:/Education/Performance/Amazon/ubuntuaws64bit_2.pem **/target/*.war ubuntu@${params.tomcat_dev}:/var/lib/tomcat8/webapps'
+                    }
                 }
             }
-        }
-    }    
-}
+
+        }    
+    }
+}    
