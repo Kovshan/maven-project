@@ -29,13 +29,13 @@ pipeline {
             parallel{
                 stage ('Deploy to Staging'){
                     steps {
-                        bat 'pscp -scp -i F:/Education/Performance/Amazon/ubuntuaws64bit_2.pem **/target/*.war ubuntu@${params.tomcat_dev}:/var/lib/tomcat8/webapps'
+                        bat 'winscp -i F:/Education/Performance/Amazon/ubuntuaws64bit_2.pem **/target/*.war ubuntu@${params.tomcat_dev}:/var/lib/tomcat8/webapps'
                     }
                 }
                 
                 stage ('Deploy to Production'){
                     steps {
-                        bat 'pscp -scp -i F:/Education/Performance/Amazon/ubuntuaws64bit_2.pem **/target/*.war ubuntu@${params.tomcat_dev}:/var/lib/tomcat8/webapps'
+                        bat 'winscp -i F:/Education/Performance/Amazon/ubuntuaws64bit_2.pem **/target/*.war ubuntu@${params.tomcat_dev}:/var/lib/tomcat8/webapps'
                     }
                 }
             }
